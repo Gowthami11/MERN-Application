@@ -1,6 +1,6 @@
 import express from 'express'
 const router = express.Router();
-import {getPlaceById,getPlaceByUserId} from "../controllers/places-controllers"
+import {getPlaceById,getPlaceByUserId,createPlace} from "../controllers/places-controllers"
 const dummyPlaces = [
     {
         id: 'p1',
@@ -16,6 +16,7 @@ const dummyPlaces = [
 ]
 router.get("/:placeid", getPlaceById);
 
-router.get("/user/:uid", getPlaceByUserId)
+router.get("/user/:uid", getPlaceByUserId);
+router.post("/",createPlace)
 
 module.exports = router

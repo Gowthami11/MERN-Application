@@ -1,10 +1,18 @@
 import express from 'express';
-import bodyParser from 'body-parser';
-
+import HttpError from './models/HttpError';
 import router from "./routes/places-routes"
 
 const app=express();
+app.use(express.json())
 app.use("/api/places",router);
+
+//to handle no routes
+app.use((req,res,next)=>{
+    const error=new HttpError('could not find this route',404);
+    //this thows to below error handler router
+    throw error;
+})
+
 //below gets executes for error
 app.use((error,req,res,next)=>{
     if(res.headerSent){
