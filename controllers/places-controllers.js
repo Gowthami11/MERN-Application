@@ -1,6 +1,6 @@
 import HttpError from "../models/HttpError";
 import {v4 as uuid} from 'uuid'
-const dummyPlaces = [
+let dummyPlaces = [
     {
         id: 'p1',
         title: 'Empire State Building',
@@ -54,5 +54,24 @@ export const createPlace=(req,res,next)=>{
     dummyPlaces.push(createdPlace)
     //201 for success
     res.status(201).json({createdPlace:createdPlace})
+
+}
+
+export const updatePlace=(req,res,next)=>{
+    const {pid}=req.params;
+    const {title,description}=req.body;
+    const updatedplace={...dummyPlaces.find(data=>data.id===pid)};
+    const index=dummyPlaces.findIndex(d=>d.id===pid);
+    updatedplace.title=title;
+    updatedplace.description=description;
+    dummyPlaces[index]=updatedplace
+    res.status(200).json({updatedplace})
+
+}
+
+export const deletePlace=(req,res)=>{
+    const {pid}=req.params;
+     dummyPlaces=dummyPlaces.filter(d=>d.id!=pid);
+    res.status(200).send('Deleted place')
 
 }
