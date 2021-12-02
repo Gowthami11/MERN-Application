@@ -1,11 +1,11 @@
 import express from 'express';
 import HttpError from './models/HttpError';
 import router from "./routes/places-routes"
-
+import usersRoutes from "./routes/users-routes"
 const app=express();
 app.use(express.json())
 app.use("/api/places",router);
-
+app.use("/api/users",usersRoutes)
 //to handle no routes
 app.use((req,res,next)=>{
     const error=new HttpError('could not find this route',404);

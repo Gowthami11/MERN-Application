@@ -25,18 +25,18 @@ export const getPlaceById=(req,res,next)=>{
     res.json({ place })
 
 }
-export const getPlaceByUserId=(req,res,next)=>{
+export const getPlacesByUserId=(req,res,next)=>{
     const uid = req.params.uid;
-    const place = dummyPlaces.find(data => data.creator === uid);
+    const places = dummyPlaces.filter(data => data.creator === uid);
     // if (!place) {
     //     const error = new Error('could not provide a place for the given user id');
     //     error.code = 404;
     //    return next(error);
     // }
-    if (!place) {
+    if (!places || places.length===0) {
         throw new HttpError('could not provide a place for the given user id', 404)
     }
-    res.json({ place })
+    res.json({ places })
 }
 
 export const createPlace=(req,res,next)=>{
@@ -72,6 +72,6 @@ export const updatePlace=(req,res,next)=>{
 export const deletePlace=(req,res)=>{
     const {pid}=req.params;
      dummyPlaces=dummyPlaces.filter(d=>d.id!=pid);
-    res.status(200).send('Deleted place')
+    res.status(200).send({message:'Deleted place'})
 
 }
