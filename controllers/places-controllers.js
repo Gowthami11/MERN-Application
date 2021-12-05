@@ -1,6 +1,7 @@
 import HttpError from "../models/HttpError";
 import {v4 as uuid} from 'uuid';
 import {validationResult} from "express-validator";
+import {getCoordsForAddress} from "../util/location"
 let dummyPlaces = [
     {
         id: 'p1',
@@ -40,14 +41,23 @@ export const getPlacesByUserId=(req,res,next)=>{
     res.json({ places })
 }
 
-export const createPlace=(req,res,next)=>{
+export const createPlace=async(req,res,next)=>{
     //to validate req body
-    const errors=validationResult(req);
+    const errors= validationResult(req);
     if(!errors.isEmpty())
-    throw new HttpError('Invalid inputs passed, Please check your data',422)
+    return next( new HttpError('Invalid inputs passed, Please check your data',422))
     console.log('erros',errors)
+    let coordinates
+    try{
+     coordinates=await getCoordsForAddress(address)
+
+    }
+    catch(e){
+        return next(e)
+    }
+    console.log('coordinates',coordinates)
     //express.json() to use req.body
-    const {title,description,coordinates,address,creator}=req.body;
+    const {title,description,address,creator}=req.body;
     // console.log('title,description,coordinates,address,creator',title,description,coordinates,address,creator,req.body)
     const createdPlace={
         id:uuid(),
