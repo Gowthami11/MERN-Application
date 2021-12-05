@@ -16,7 +16,7 @@ const dummyPlaces = [
     }
 ]
 router.get("/:placeid", getPlaceById);
-router.patch("/:pid",updatePlace);
+router.patch("/:pid",[check('title').not().isEmpty(),check('description').isLength({min:4})],updatePlace);
 router.delete("/:pid",deletePlace);
 
 router.get("/user/:uid", getPlacesByUserId);

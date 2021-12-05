@@ -45,6 +45,7 @@ export const createPlace=(req,res,next)=>{
     const errors=validationResult(req);
     if(!errors.isEmpty())
     throw new HttpError('Invalid inputs passed, Please check your data',422)
+    console.log('erros',errors)
     //express.json() to use req.body
     const {title,description,coordinates,address,creator}=req.body;
     // console.log('title,description,coordinates,address,creator',title,description,coordinates,address,creator,req.body)
@@ -63,6 +64,9 @@ export const createPlace=(req,res,next)=>{
 }
 
 export const updatePlace=(req,res,next)=>{
+    const errors=validationResult(req);
+    if(!errors.isEmpty())
+    throw new Error('Invalid inputs passed, Please check your data',422);
     const {pid}=req.params;
     const {title,description}=req.body;
     const updatedplace={...dummyPlaces.find(data=>data.id===pid)};

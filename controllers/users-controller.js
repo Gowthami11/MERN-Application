@@ -1,6 +1,7 @@
 
 import HttpError from "../models/HttpError"
 import {v4 as uuid} from 'uuid'
+import {validationResult} from 'express-validator'
 const dummyUsers=[
     {
         id:"u1",
@@ -25,7 +26,9 @@ export const login=(req,res,next)=>{
     res.json({message:'Logged in'})
 }
 export const signup=(req,res,next)=>{
-
+const errors=validationResult(req);
+if(!errors.isEmpty())
+throw new Error('Invalid inputs passed, Please check your data',422)
     const {email,pwd,uname}=req.body;
     const createduser={
         id:uuid(),
