@@ -1,5 +1,6 @@
 import express from 'express'
 const router = express.Router();
+import {check} from 'express-validator'
 import {getPlaceById,getPlacesByUserId,createPlace,updatePlace,deletePlace} from "../controllers/places-controllers"
 const dummyPlaces = [
     {
@@ -19,6 +20,10 @@ router.patch("/:pid",updatePlace);
 router.delete("/:pid",deletePlace);
 
 router.get("/user/:uid", getPlacesByUserId);
-router.post("/",createPlace)
+router.post("/",[check('title').not().isEmpty(),
+check('description').isLength({min:5}),
+check('address').not().isEmpty()
+
+],createPlace)
 
 module.exports = router
