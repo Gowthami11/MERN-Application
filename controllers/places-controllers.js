@@ -1,7 +1,9 @@
 import HttpError from "../models/HttpError";
 import {v4 as uuid} from 'uuid';
+import mongoose from "mongoose"
 import {validationResult} from "express-validator";
 import {getCoordsForAddress} from "../util/location"
+import {PlaceModel} from "../models/place"
 let dummyPlaces = [
     {
         id: 'p1',
@@ -59,15 +61,19 @@ export const createPlace=async(req,res,next)=>{
     //express.json() to use req.body
     const {title,description,address,creator}=req.body;
     // console.log('title,description,coordinates,address,creator',title,description,coordinates,address,creator,req.body)
-    const createdPlace={
-        id:uuid(),
+    const createdPlace=new PlaceModel({
         title,
         description,
         location:coordinates,
         address,
-        creator
+        image:"https://r-cf.bstatic.com/images/hotel/max1024x768/162/162633985.jpg",
+        creator,
+    })
+    
+    try{await createdPlace.save();}
+    catch(e){
+        new HttpError('creating place failed,Please try again',500)
     }
-    dummyPlaces.push(createdPlace)
     //201 for success
     res.status(201).json({createdPlace:createdPlace})
 
