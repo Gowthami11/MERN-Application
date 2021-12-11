@@ -17,16 +17,23 @@ let dummyPlaces = [
         creator: 'u1'
     }
 ]
-export const getPlaceById=(req,res,next)=>{
+export const getPlaceById=async(req,res,next)=>{
     const placeid = req.params.placeid;
-    const place = dummyPlaces.find(data => data.id === placeid);
+    let place;
+    try{
+     place=await PlaceModel.findById(placeid)
+
+    }catch(err){
+        throw HttpError('something went wrong, could not find a place',404)
+    }
+
     if (!place) {
         throw new HttpError('could not find place with given id')
         //asynchronous is next(error)
         //syncronous
         //return throw new Error('message');
     }
-    res.json({ place })
+    res.json({ place :place.toObject({getters:true})})// to give id along with _id
 
 }
 export const getPlacesByUserId=(req,res,next)=>{
