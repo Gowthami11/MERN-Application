@@ -36,9 +36,15 @@ export const getPlaceById=async(req,res,next)=>{
     res.json({ place :place.toObject({getters:true})})// to give id along with _id
 
 }
-export const getPlacesByUserId=(req,res,next)=>{
+export const getPlacesByUserId=async(req,res,next)=>{
     const uid = req.params.uid;
-    const places = dummyPlaces.filter(data => data.creator === uid);
+    let places
+    try{
+        places=await PlaceModel.find({creator:uid})
+    }
+    catch(e){
+        return next(new HttpError('fetching places failed, Please try again',404))
+    }
     // if (!place) {
     //     const error = new Error('could not provide a place for the given user id');
     //     error.code = 404;
@@ -47,7 +53,7 @@ export const getPlacesByUserId=(req,res,next)=>{
     if (!places || places.length===0) {
         throw new HttpError('could not provide a place for the given user id', 404)
     }
-    res.json({ places })
+    res.json({ places:places.map(place=>place.toObject({getters:true})) })
 }
 
 export const createPlace=async(req,res,next)=>{
