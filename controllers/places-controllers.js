@@ -92,18 +92,26 @@ export const createPlace=async(req,res,next)=>{
 
 }
 
-export const updatePlace=(req,res,next)=>{
+export const updatePlace=async(req,res,next)=>{
     const errors=validationResult(req);
     if(!errors.isEmpty())
     throw new Error('Invalid inputs passed, Please check your data',422);
     const {pid}=req.params;
     const {title,description}=req.body;
-    const updatedplace={...dummyPlaces.find(data=>data.id===pid)};
-    const index=dummyPlaces.findIndex(d=>d.id===pid);
-    updatedplace.title=title;
-    updatedplace.description=description;
-    dummyPlaces[index]=updatedplace
-    res.status(200).json({updatedplace})
+    let place
+    try{ place= await PlaceModel.findById(pid);}
+    catch(e){
+        return next(new HttpError('Something went wrong, could not update place',500))
+    }
+    place.title=title;
+    place.description=description;
+    try{    
+        await place.save();
+    }
+    catch(e){
+        return next(new HttpError('Something went wonr, could not update place save',500))
+    }
+    res.status(200).json({place:place.toObject({getters:true})})
 
 }
 
