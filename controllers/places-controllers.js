@@ -24,7 +24,7 @@ export const getPlaceById=async(req,res,next)=>{
      place=await PlaceModel.findById(placeid)
 
     }catch(err){
-        throw HttpError('something went wrong, could not find a place',404)
+       return next(new HttpError('something went wrong, could not find a place',404));
     }
 
     if (!place) {
@@ -59,6 +59,7 @@ export const getPlacesByUserId=async(req,res,next)=>{
 export const createPlace=async(req,res,next)=>{
     //to validate req body
     const errors= validationResult(req);
+    console.log('erros',errors)
     if(!errors.isEmpty())
     return next( new HttpError('Invalid inputs passed, Please check your data',422))
     console.log('erros',errors)
@@ -115,9 +116,24 @@ export const updatePlace=async(req,res,next)=>{
 
 }
 
-export const deletePlace=(req,res)=>{
+export const deletePlace=async(req,res)=>{
     const {pid}=req.params;
-     dummyPlaces=dummyPlaces.filter(d=>d.id!=pid);
+let place;
+    try{
+        place=await PlaceModel.findById(pid);
+        
+    }
+    catch(e)
+    {
+        return next(new HttpError('some thing went wrong, place cannot be deleted',500))
+    }
+    try{
+       await place.remove()
+    }
+    catch(e)
+    {
+        return next(new HttpError('some thing went wrong, place cannot be deleted',500))
+    }
     res.status(200).send({message:'Deleted place'})
 
 }

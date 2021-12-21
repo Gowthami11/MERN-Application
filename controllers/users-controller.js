@@ -2,6 +2,7 @@
 import HttpError from "../models/HttpError"
 import {v4 as uuid} from 'uuid'
 import {validationResult} from 'express-validator'
+import {Uschema} from "../models/user"
 const dummyUsers=[
     {
         id:"u1",
@@ -25,22 +26,49 @@ export const login=(req,res,next)=>{
 
     res.json({message:'Logged in'})
 }
-export const signup=(req,res,next)=>{
+export const signup=async(req,res,next)=>{
 const errors=validationResult(req);
+console.log('errrr',errors)
 if(!errors.isEmpty())
-throw new Error('Invalid inputs passed, Please check your data',422)
-    const {email,pwd,uname}=req.body;
+return next(new HttpError('Invalid inputs passed, Please check your data',422));
+
+    const {email,pwd,uname,places}=req.body;
     const createduser={
-        id:uuid(),
         email,
-        name:uname,
-        password:pwd
+       uname,
+       image:"https://r-cf.bstatic.com/images/hotel/max1024x768/162/162633985.jpg",
+        password:pwd,
+        places
 
     };
+    let existinguser
+try{
+     existinguser=await Uschema.findOne({email:email});
+     console.log('existinguser',existinguser)
+}
+catch(e){
+    return next(new HttpError('SignUp failed, Please try again !!',500))
+}
+   if(existinguser){
+       return next(new HttpError('email already exists, Please signin instead',422))
+   }
+  const createdUser=new Uschema({
 
-    const checkifexists=dummyUsers.findIndex(d=>d.email===email);
-    if(checkifexists>=0)
-    res.send('email already exists')
-    dummyUsers.push(createduser);
-    res.status(200).send({user:createduser})
+    uname,
+    email,
+    password:pwd,
+    image:"https://r-cf.bstatic.com/images/hotel/max1024x768/162/162633985.jpg",
+    places
+
+  })
+  try{
+  await createdUser.save()
+
+  }
+  catch(e)
+  {
+    return next(new HttpError('Something went Wrong, Please try again',500))
+
+  }
+    res.status(200).send({user:createdUser})
 }
