@@ -11,8 +11,16 @@ const dummyUsers = [
         password: 'test'
     }
 ]
-export const getUsers = (req, res, next) => {
-    res.json({ users: dummyUsers })
+export const getUsers = async(req, res, next) => {
+    let users;
+    try{
+        users=await Uschema.find({},"-password")
+    }
+    catch(e){
+        return next(new HttpError('Fetching Users failed, Please try again later',500))
+    }
+    //to get id in repsonse without _
+    res.json({ users: users.map(user=>user.toObject({getters:true})) })
 
 }
 export const login = async(req, res, next) => {
