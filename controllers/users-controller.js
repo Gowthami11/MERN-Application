@@ -44,7 +44,6 @@ return next(new HttpError('Invalid inputs passed, Please check your data',422));
     let existinguser
 try{
      existinguser=await Uschema.findOne({email:email});
-     console.log('existinguser',existinguser)
 }
 catch(e){
     return next(new HttpError('SignUp failed, Please try again !!',500))
@@ -61,6 +60,8 @@ catch(e){
     places
 
   })
+  console.log('createdUser',createdUser)
+
   try{
   await createdUser.save()
 

@@ -3,9 +3,9 @@ import uniqueValidator from "mongoose-unique-validator"
 const UserSchema=new Schema({
     uname:{type:String,required:true},
     email:{type:String,required:true,unique:true},
-    password:{type:String,required:true,unique:true},
-    image:{type:String,required:true,unique:true},
-    places:{type:String,required:true,unique:true},
+    password:{type:String,required:true,minlength:6},
+    image:{type:String,required:true,},
+    places:{type:String,required:true,},
 
 })
 //to validate unique mail
