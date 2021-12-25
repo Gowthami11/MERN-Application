@@ -4,6 +4,7 @@ import mongoose from "mongoose"
 import {validationResult} from "express-validator";
 import {getCoordsForAddress} from "../util/location"
 import {PlaceModel} from "../models/place"
+import {Uschema} from "../models/user"
 let dummyPlaces = [
     {
         id: 'p1',
@@ -59,7 +60,6 @@ export const getPlacesByUserId=async(req,res,next)=>{
 export const createPlace=async(req,res,next)=>{
     //to validate req body
     const errors= validationResult(req);
-    console.log('erros',errors)
     if(!errors.isEmpty())
     return next( new HttpError('Invalid inputs passed, Please check your data',422))
     console.log('erros',errors)
@@ -71,7 +71,6 @@ export const createPlace=async(req,res,next)=>{
     catch(e){
         return next(e)
     }
-    console.log('coordinates',coordinates)
     //express.json() to use req.body
     const {title,description,address,creator}=req.body;
     // console.log('title,description,coordinates,address,creator',title,description,coordinates,address,creator,req.body)
@@ -83,10 +82,36 @@ export const createPlace=async(req,res,next)=>{
         image:"https://r-cf.bstatic.com/images/hotel/max1024x768/162/162633985.jpg",
         creator,
     })
-    
-    try{await createdPlace.save();}
+    let user;
+    try{
+        user=await Uschema.findById(creator)
+    }
     catch(e){
-        new HttpError('creating place failed,Please try again',500)
+        return next(new HttpError("Creating place failed, please try again",500))
+    }
+    if(!user){
+        return next(new HttpError('Could not find user for provided Id',404))
+    }
+    console.log('user',user)
+    //if user exists, comes here
+    try{
+        const sess=await mongoose.startSession();
+         sess.startTransaction();
+    console.log("after transaction start")
+
+         await createdPlace.save({session:sess});
+    console.log("after createdPlace save")
+
+          user.places.push(createdPlace);// this is not normal js push, this mongoose one
+         console.log("after uschema push")
+
+         await user.save({session:sess});
+         console.log("after uschema save")
+         await sess.commitTransaction()
+    }
+    catch(e){
+        console.log('err',e)
+        return next(new HttpError('creating place failed,Please try again',500))
     }
     //201 for success
     res.status(201).json({createdPlace:createdPlace})

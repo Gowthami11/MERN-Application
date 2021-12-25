@@ -5,7 +5,8 @@ const UserSchema=new Schema({
     email:{type:String,required:true,unique:true},
     password:{type:String,required:true,minlength:6},
     image:{type:String,required:true,},
-    places:{type:String,required:true,},
+    //to link places with user schema, like user can have many places , so below is an array 
+    places:[{type:mongoose.Types.ObjectId,required:true,ref:"Place"}],
 
 })
 //to validate unique mail

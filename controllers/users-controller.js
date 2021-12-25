@@ -45,14 +45,7 @@ export const signup = async (req, res, next) => {
         return next(new HttpError('Invalid inputs passed, Please check your data', 422));
 
     const { email, pwd, uname, places } = req.body;
-    const createduser = {
-        email,
-        uname,
-        image: "https://r-cf.bstatic.com/images/hotel/max1024x768/162/162633985.jpg",
-        password: pwd,
-        places
-
-    };
+  
     let existinguser
     try {
         existinguser = await Uschema.findOne({ email: email });
@@ -69,7 +62,7 @@ export const signup = async (req, res, next) => {
         email,
         password: pwd,
         image: "https://r-cf.bstatic.com/images/hotel/max1024x768/162/162633985.jpg",
-        places
+        places:[]
 
     })
     console.log('createdUser', createdUser)
