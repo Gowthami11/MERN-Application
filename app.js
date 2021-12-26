@@ -3,7 +3,7 @@ import HttpError from './models/HttpError';
 import router from "./routes/places-routes"
 import usersRoutes from "./routes/users-routes"
 import mongoose from "mongoose"
-const dburl = 'mongodb+srv://gow1:12345@merncluster.h08bv.mongodb.net/places?retryWrites=true&w=majority'
+const dburl = 'mongodb+srv://gow1:12345@merncluster.h08bv.mongodb.net/mern?retryWrites=true&w=majority'
 
 const app = express();
 app.use(express.json())
