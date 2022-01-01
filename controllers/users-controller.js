@@ -36,7 +36,7 @@ export const login = async(req, res, next) => {
     return next(new HttpError('Invalid credentails, Could not login', 500))
 
 
-    res.json({ message: 'Logged in' })
+    res.json({ message: 'Logged in',user:existinguser.toObject({getters:true}) })
 }
 export const signup = async (req, res, next) => {
     const errors = validationResult(req);

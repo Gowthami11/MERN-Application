@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { application } from 'express';
 import HttpError from './models/HttpError';
 import router from "./routes/places-routes"
 import usersRoutes from "./routes/users-routes"
@@ -6,7 +6,13 @@ import mongoose from "mongoose"
 const dburl = 'mongodb+srv://gow1:12345@merncluster.h08bv.mongodb.net/mern?retryWrites=true&w=majority'
 
 const app = express();
-app.use(express.json())
+app.use(express.json());
+app.use((req,res,next)=>{
+    res.setHeader('Access-Control-Allow-Origin','*');
+    res.setHeader('Access-Control-Allow-Methods','GET, POST, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers','Origin, X-Requested-With, Origin, Authorization, Accept, Content-Type')
+    next();
+})
 app.use("/api/places", router);
 app.use("/api/users", usersRoutes)
 //to handle no routes

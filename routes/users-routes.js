@@ -6,6 +6,6 @@ const dummyUsers = []
 
 router.get('/', getUsers);
 router.post("/login", login);
-router.post("/signup", [check('uname').not().isEmpty(), check('email').normalizeEmail().isEmail(), check('pwd').isLength({ min: 5 })], signup);
+router.post("/signup", [check('uname').not().isEmpty(), check('email').normalizeEmail().isEmail(), check('pwd').isLength({ min: 4 })], signup);
 //check('places').not().isEmpty(),
 module.exports = router
