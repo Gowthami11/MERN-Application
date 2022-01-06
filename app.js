@@ -2,11 +2,15 @@ import express, { application } from 'express';
 import HttpError from './models/HttpError';
 import router from "./routes/places-routes"
 import usersRoutes from "./routes/users-routes"
-import mongoose from "mongoose"
+import mongoose from "mongoose";
+import fs from 'fs';
+import path from 'path'
 const dburl = 'mongodb+srv://gow1:12345@merncluster.h08bv.mongodb.net/mern?retryWrites=true&w=majority'
 
 const app = express();
 app.use(express.json());
+app.use('/uploads/images', express.static(path.join('uploads', 'images')));
+
 app.use((req,res,next)=>{
     res.setHeader('Access-Control-Allow-Origin','*');
     res.setHeader('Access-Control-Allow-Methods','GET, POST, PATCH, DELETE');
@@ -21,9 +25,15 @@ app.use((req, res, next) => {
     //this thows to below error handler router
     throw error;
 })
-
 //below gets executes for error
 app.use((error, req, res, next) => {
+    //multer gives req.file
+    if(req.file)
+    {
+        fs.unlink(req.file.path,(err)=>{
+            console.log('image error',err)
+        })
+    }
     if (res.headerSent) {
         next(error)
     }

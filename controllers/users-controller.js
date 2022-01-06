@@ -61,7 +61,7 @@ export const signup = async (req, res, next) => {
         uname,
         email,
         password: pwd,
-        image: "https://r-cf.bstatic.com/images/hotel/max1024x768/162/162633985.jpg",
+        image: req.file.path, // multer gives file path
         places:[]
 
     })
