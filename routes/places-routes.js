@@ -2,6 +2,7 @@ import express from 'express'
 const router = express.Router();
 import {check} from 'express-validator'
 import {getPlaceById,getPlacesByUserId,createPlace,updatePlace,deletePlace} from "../controllers/places-controllers"
+import { fileUpload } from '../middleware/file-upload';
 const dummyPlaces = [
     {
         id: 'p1',
@@ -20,7 +21,7 @@ router.patch("/:pid",[check('title').not().isEmpty(),check('description').isLeng
 router.delete("/:pid",deletePlace);
 
 router.get("/user/:uid", getPlacesByUserId);
-router.post("/",[check('title').not().isEmpty(),
+router.post("/",fileUpload.single("image"),[check('title').not().isEmpty(),
 check('description').isLength({min:5}),
 check('address').not().isEmpty()
 

@@ -5,6 +5,7 @@ import { validationResult } from "express-validator";
 import { getCoordsForAddress } from "../util/location"
 import { PlaceModel } from "../models/place"
 import { Uschema } from "../models/user"
+import fs from 'fs'
 let dummyPlaces = [
     {
         id: 'p1',
@@ -109,7 +110,7 @@ export const createPlace = async (req, res, next) => {
         description,
         location: coordinates,
         address,
-        image: "https://r-cf.bstatic.com/images/hotel/max1024x768/162/162633985.jpg",
+        image: req.file.path,
         creator,
     })
     let user;
@@ -185,6 +186,7 @@ export const deletePlace = async (req, res, next) => {
     if (!place) {
         return next(new HttpError('Could not find place for this Id', 404))
     }
+    const imagePath=place.image
     try {
         const sess = await mongoose.startSession();
         sess.startTransaction();
@@ -196,6 +198,7 @@ export const deletePlace = async (req, res, next) => {
     catch (e) {
         return next(new HttpError('some thing went wrong, place cannot be deleted', 500))
     }
+    fs.unlink(imagePath,(e)=>console.log(e)) // delete image from db
     res.status(200).send({ message: 'Deleted place' })
 
 }
