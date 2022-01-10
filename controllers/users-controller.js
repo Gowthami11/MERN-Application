@@ -3,6 +3,7 @@ import HttpError from "../models/HttpError"
 import { v4 as uuid } from 'uuid'
 import { validationResult } from 'express-validator'
 import { Uschema } from "../models/user"
+import bcrypt from 'bcrypt'
 const dummyUsers = [
     {
         id: "u1",
@@ -32,8 +33,19 @@ export const login = async(req, res, next) => {
     catch(e){
         return next(new HttpError('Login failed, Please try again !!', 500))
     }
-    if(!existinguser || existinguser.password!==pwd)
+    if(!existinguser )
     return next(new HttpError('Invalid credentails, Could not login', 500))
+
+    let isValidPassword=false;
+    try{
+        isValidPassword=await bcrypt.compare(pwd,existinguser.password)
+    }
+    catch(e){
+        return next(new HttpError('COuld not login, Please check your credentaials and login again',500))
+    }
+    if(!isValidPassword)
+    return next(new HttpError('Invalid credentails, Could not login', 500))
+
 
 
     res.json({ message: 'Logged in',user:existinguser.toObject({getters:true}) })
@@ -45,7 +57,13 @@ export const signup = async (req, res, next) => {
         return next(new HttpError('Invalid inputs passed, Please check your data', 422));
 
     const { email, pwd, uname, places } = req.body;
-  
+    let hashedPassword;
+    try{
+        hashedPassword=await bcrypt.hash(pwd,12);
+    }
+  catch(e){
+      return next(new HttpError('could not create user, Please try again ',500))
+  }
     let existinguser
     try {
         existinguser = await Uschema.findOne({ email: email });
@@ -60,7 +78,7 @@ export const signup = async (req, res, next) => {
 
         uname,
         email,
-        password: pwd,
+        password: hashedPassword,
         image: req.file.path, // multer gives file path
         places:[]
 
