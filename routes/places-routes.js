@@ -3,6 +3,7 @@ const router = express.Router();
 import {check} from 'express-validator'
 import {getPlaceById,getPlacesByUserId,createPlace,updatePlace,deletePlace} from "../controllers/places-controllers"
 import { fileUpload } from '../middleware/file-upload';
+import { checkAuth } from '../middleware/check-auth';
 const dummyPlaces = [
     {
         id: 'p1',
@@ -17,10 +18,11 @@ const dummyPlaces = [
     }
 ]
 router.get("/:placeid", getPlaceById);
+router.get("/user/:uid", getPlacesByUserId);
+router.use(checkAuth)
 router.patch("/:pid",[check('title').not().isEmpty(),check('description').isLength({min:4})],updatePlace);
 router.delete("/:pid",deletePlace);
 
-router.get("/user/:uid", getPlacesByUserId);
 router.post("/",fileUpload.single("image"),[check('title').not().isEmpty(),
 check('description').isLength({min:5}),
 check('address').not().isEmpty()

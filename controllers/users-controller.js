@@ -4,6 +4,7 @@ import { v4 as uuid } from 'uuid'
 import { validationResult } from 'express-validator'
 import { Uschema } from "../models/user"
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 const dummyUsers = [
     {
         id: "u1",
@@ -46,9 +47,14 @@ export const login = async(req, res, next) => {
     if(!isValidPassword)
     return next(new HttpError('Invalid credentails, Could not login', 500))
 
-
-
-    res.json({ message: 'Logged in',user:existinguser.toObject({getters:true}) })
+let token
+try{
+    token=jwt.sign({userId:existinguser.id,email:existinguser.email},'some_secret',{expiresIn:'10hr'})
+}
+catch(e){
+    return next(new HttpError("login has failed, Please try again",500))
+}
+    res.json({ user:existinguser.id,email:existinguser.email,token:token})
 }
 export const signup = async (req, res, next) => {
     const errors = validationResult(req);
@@ -93,5 +99,13 @@ export const signup = async (req, res, next) => {
         return next(new HttpError('Something went Wrong, Please try again', 500))
 
     }
-    res.status(200).send({ user: createdUser })
+
+    let token;
+    try{
+        token=jwt.sign({userId:createdUser.id,email:createdUser.email},'some_secret',{expiresIn:'10hr'})
+    }
+    catch(e){
+        return next(new HttpError('Signing up failed, Please try again',500))
+    }
+    res.status(200).send({ userId:createdUser.id,email:createdUser.email,token:token })
 }
