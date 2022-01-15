@@ -160,6 +160,14 @@ export const updatePlace = async (req, res, next) => {
     catch (e) {
         return next(new HttpError('Something went wrong, could not update place', 500))
     }
+    //creator is of type mongoose object id, so need to convert to string as below
+    if(place.creator.toString()!==req.userData.userId)
+    {
+        return next(new HttpError('You are not allowed to edit this place'))
+    }
+
+
+
     place.title = title;
     place.description = description;
     try {

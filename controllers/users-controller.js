@@ -34,7 +34,7 @@ export const login = async(req, res, next) => {
     catch(e){
         return next(new HttpError('Login failed, Please try again !!', 500))
     }
-    if(!existinguser )
+    if(!existinguser)
     return next(new HttpError('Invalid credentails, Could not login', 500))
 
     let isValidPassword=false;
@@ -54,7 +54,7 @@ try{
 catch(e){
     return next(new HttpError("login has failed, Please try again",500))
 }
-    res.json({ user:existinguser.id,email:existinguser.email,token:token})
+    res.json({ userId:existinguser.id,email:existinguser.email,token:token})
 }
 export const signup = async (req, res, next) => {
     const errors = validationResult(req);
