@@ -103,7 +103,7 @@ export const createPlace = async (req, res, next) => {
         return next(e)
     }
     //express.json() to use req.body
-    const { title, description, address, creator } = req.body;
+    const { title, description, address, } = req.body;
     // console.log('title,description,coordinates,address,creator',title,description,coordinates,address,creator,req.body)
     const createdPlace = new PlaceModel({
         title,
@@ -111,11 +111,11 @@ export const createPlace = async (req, res, next) => {
         location: coordinates,
         address,
         image: req.file.path,
-        creator,
+        creator:req.userData.userId,
     })
     let user;
     try {
-        user = await Uschema.findById(creator)
+        user = await Uschema.findById(req.userData.userId)
     }
     catch (e) {
         return next(new HttpError("Creating place failed, please try again", 500))
@@ -160,6 +160,10 @@ export const updatePlace = async (req, res, next) => {
     catch (e) {
         return next(new HttpError('Something went wrong, could not update place', 500))
     }
+    if (!place) {
+        return next(new HttpError('Could not find place for this Id', 404))
+    }
+
     //creator is of type mongoose object id, so need to convert to string as below
     if(place.creator.toString()!==req.userData.userId)
     {
@@ -191,8 +195,13 @@ export const deletePlace = async (req, res, next) => {
     catch (e) {
         return next(new HttpError('some thing went wrong, place cannot be deleted', 500))
     }
+    console.log('placeplace',place)
     if (!place) {
         return next(new HttpError('Could not find place for this Id', 404))
+    }
+
+    if(place.creator.toString()!==req.userData.userId){
+        return next(new HttpError('You cannot delete this pace',401))
     }
     const imagePath=place.image
     try {

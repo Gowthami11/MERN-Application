@@ -16,7 +16,7 @@ export const checkAuth=(req,res,next)=>{
 
 
     }catch(e){
-        return next(new HttpError("Authentication failed",401))
+        return next(new HttpError("Authentication failed",403))
     }
 
 }
