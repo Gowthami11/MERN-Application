@@ -40,5 +40,5 @@ app.use((error, req, res, next) => {
     res.status(error.code || 500);
     res.json({ message: error.message || 'An Unknown error has occured' })
 })
-mongoose.connect(dburl).then(() => app.listen(5000, () => console.log('connection successfull')))
+mongoose.connect(dburl).then(() => app.listen(process.env.PORT||5000, () => console.log('connection successfull')))
 .catch(err=>console.log(err))
