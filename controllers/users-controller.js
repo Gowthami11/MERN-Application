@@ -49,7 +49,7 @@ export const login = async(req, res, next) => {
 
 let token
 try{
-    token=jwt.sign({userId:existinguser.id,email:existinguser.email},'some_secret',{expiresIn:'10hr'})
+    token=jwt.sign({userId:existinguser.id,email:existinguser.email},process.env.JWT_TOKEN,{expiresIn:'10hr'})
 }
 catch(e){
     return next(new HttpError("login has failed, Please try again",500))
@@ -102,7 +102,7 @@ export const signup = async (req, res, next) => {
 
     let token;
     try{
-        token=jwt.sign({userId:createdUser.id,email:createdUser.email},'some_secret',{expiresIn:'10hr'})
+        token=jwt.sign({userId:createdUser.id,email:createdUser.email},process.env.JWT_TOKEN,{expiresIn:'10hr'})
     }
     catch(e){
         return next(new HttpError('Signing up failed, Please try again',500))

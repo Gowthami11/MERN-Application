@@ -5,7 +5,7 @@ import usersRoutes from "./routes/users-routes"
 import mongoose from "mongoose";
 import fs from 'fs';
 import path from 'path'
-const dburl = 'mongodb+srv://gow1:12345@merncluster.h08bv.mongodb.net/mern?retryWrites=true&w=majority'
+const dburl = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@merncluster.h08bv.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
 
 const app = express();
 app.use(express.json());
