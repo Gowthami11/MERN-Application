@@ -9,7 +9,7 @@ const dburl = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@m
 
 const app = express();
 app.use(express.json());
-app.use('/uploads/images', express.static(path.join('uploads', 'images')));
+app.use('/src/uploads/images', express.static(path.join('src','uploads', 'images')));
 
 app.use((req,res,next)=>{
     res.setHeader('Access-Control-Allow-Origin','*');
