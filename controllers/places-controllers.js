@@ -199,8 +199,8 @@ export const deletePlace = async (req, res, next) => {
     if (!place) {
         return next(new HttpError('Could not find place for this Id', 404))
     }
-
-    if(place.creator.toString()!==req.userData.userId){
+console.log('test',place,req.userData)
+    if(place.creator.id!==req.userData.userId){
         return next(new HttpError('You cannot delete this pace',401))
     }
     const imagePath=place.image
