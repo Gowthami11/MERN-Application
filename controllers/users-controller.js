@@ -62,7 +62,7 @@ export const signup = async (req, res, next) => {
     if (!errors.isEmpty())
         return next(new HttpError('Invalid inputs passed, Please check your data', 422));
 
-    const { email, pwd, uname, places } = req.body;
+    const { email, pwd, uname } = req.body;
     let hashedPassword;
     try{
         hashedPassword=await bcrypt.hash(pwd,12);
