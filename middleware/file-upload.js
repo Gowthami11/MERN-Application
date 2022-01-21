@@ -1,5 +1,6 @@
 import multer from 'multer';
 import {v4 as uuid} from 'uuid'
+import fs from 'fs-extra'
 const MIME_TYPE_MAP={
     'image/jpg':'jpg',
     'image/jpeg':'jpeg',
@@ -9,7 +10,9 @@ const fileUpload=multer({
     limits:500000,
     storage:multer.diskStorage({
         destination:(req,file,cb)=>{
-            cb(null,"src/uploads/images")
+            let path="src/uploads/images"
+            fs.mkdirsSync(path); 
+            cb(null,path)
         },
         filename:(req,file,cb)=>{
             const ext=MIME_TYPE_MAP[file.mimetype];
