@@ -1,5 +1,6 @@
 
 import HttpError from "../models/HttpError"
+import { uploadFile } from "../helper/aws-s3"
 import { v4 as uuid } from 'uuid'
 import { validationResult } from 'express-validator'
 import { Uschema } from "../models/user"
@@ -13,50 +14,51 @@ const dummyUsers = [
         password: 'test'
     }
 ]
-export const getUsers = async(req, res, next) => {
+export const getUsers = async (req, res, next) => {
     let users;
-    try{
-        users=await Uschema.find({},"-password")
+    try {
+        users = await Uschema.find({}, "-password")
     }
-    catch(e){
-        return next(new HttpError('Fetching Users failed, Please try again later',500))
+    catch (e) {
+        return next(new HttpError('Fetching Users failed, Please try again later', 500))
     }
     //to get id in repsonse without _
-    res.json({ users: users.map(user=>user.toObject({getters:true})) })
+    res.json({ users: users.map(user => user.toObject({ getters: true })) })
 
 }
-export const login = async(req, res, next) => {
+export const login = async (req, res, next) => {
     const { email, pwd } = req.body;
     let existinguser;
-    try{
-        existinguser=await Uschema.findOne({email:email})
+    try {
+        existinguser = await Uschema.findOne({ email: email })
     }
-    catch(e){
+    catch (e) {
         return next(new HttpError('Login failed, Please try again !!', 500))
     }
-    if(!existinguser)
-    return next(new HttpError('Invalid credentails, Could not login', 500))
+    if (!existinguser)
+        return next(new HttpError('Invalid credentails, Could not login', 500))
 
-    let isValidPassword=false;
-    try{
-        isValidPassword=await bcrypt.compare(pwd,existinguser.password)
+    let isValidPassword = false;
+    try {
+        isValidPassword = await bcrypt.compare(pwd, existinguser.password)
     }
-    catch(e){
-        return next(new HttpError('COuld not login, Please check your credentaials and login again',500))
+    catch (e) {
+        return next(new HttpError('COuld not login, Please check your credentaials and login again', 500))
     }
-    if(!isValidPassword)
-    return next(new HttpError('Invalid credentails, Could not login', 500))
+    if (!isValidPassword)
+        return next(new HttpError('Invalid credentails, Could not login', 500))
 
-let token
-try{
-    token=jwt.sign({userId:existinguser.id,email:existinguser.email},process.env.JWT_TOKEN,{expiresIn:'10hr'})
-}
-catch(e){
-    return next(new HttpError("login has failed, Please try again",500))
-}
-    res.json({ userId:existinguser.id,email:existinguser.email,token:token})
+    let token
+    try {
+        token = jwt.sign({ userId: existinguser.id, email: existinguser.email }, process.env.JWT_TOKEN, { expiresIn: '10hr' })
+    }
+    catch (e) {
+        return next(new HttpError("login has failed, Please try again", 500))
+    }
+    res.json({ userId: existinguser.id, email: existinguser.email, token: token })
 }
 export const signup = async (req, res, next) => {
+    let s3Response;
     const errors = validationResult(req);
     console.log('errrr', errors)
     if (!errors.isEmpty())
@@ -64,12 +66,12 @@ export const signup = async (req, res, next) => {
 
     const { email, pwd, uname } = req.body;
     let hashedPassword;
-    try{
-        hashedPassword=await bcrypt.hash(pwd,12);
+    try {
+        hashedPassword = await bcrypt.hash(pwd, 12);
     }
-  catch(e){
-      return next(new HttpError('could not create user, Please try again ',500))
-  }
+    catch (e) {
+        return next(new HttpError('could not create user, Please try again ', 500))
+    }
     let existinguser
     try {
         existinguser = await Uschema.findOne({ email: email });
@@ -80,16 +82,26 @@ export const signup = async (req, res, next) => {
     if (existinguser) {
         return next(new HttpError('email already exists, Please signin instead', 422))
     }
+    try{
+        s3Response = await uploadFile(req.file);
+
+
+    }catch(e){
+        return next(new HttpError('Image Upload failed',500))
+
+    }
+
     const createdUser = new Uschema({
 
         uname,
         email,
         password: hashedPassword,
-        image: req.file.path, // multer gives file path
-        places:[]
+        image: s3Response?.Location, // multer gives file path
+        places: []
 
     })
-    console.log('createdUser', createdUser)
+    console.log('createdUser', createdUser);
+
 
     try {
         await createdUser.save()
@@ -101,11 +113,11 @@ export const signup = async (req, res, next) => {
     }
 
     let token;
-    try{
-        token=jwt.sign({userId:createdUser.id,email:createdUser.email},process.env.JWT_TOKEN,{expiresIn:'10hr'})
+    try {
+        token = jwt.sign({ userId: createdUser.id, email: createdUser.email }, process.env.JWT_TOKEN, { expiresIn: '10hr' })
     }
-    catch(e){
-        return next(new HttpError('Signing up failed, Please try again',500))
+    catch (e) {
+        return next(new HttpError('Signing up failed, Please try again', 500))
     }
-    res.status(200).send({ userId:createdUser.id,email:createdUser.email,token:token })
+    res.status(200).send({ userId: createdUser.id, email: createdUser.email, token: token })
 }

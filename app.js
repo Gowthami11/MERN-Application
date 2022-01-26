@@ -6,7 +6,7 @@ import mongoose from "mongoose";
 import fs from 'fs';
 import path from 'path'
 const dburl = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@merncluster.h08bv.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
-
+console.log('dburl',dburl)
 const app = express();
 app.use(express.json());
 app.use('/src/uploads/images', express.static(path.join('src','uploads', 'images')));

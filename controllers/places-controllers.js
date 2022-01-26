@@ -1,5 +1,6 @@
 import HttpError from "../models/HttpError";
 import { v4 as uuid } from 'uuid';
+import {uploadFile} from "../helper/aws-s3";
 import mongoose from "mongoose"
 import { validationResult } from "express-validator";
 import { getCoordsForAddress } from "../util/location"
@@ -89,6 +90,7 @@ export const getPlacesByUserId = async (req, res, next) => {
 }
 
 export const createPlace = async (req, res, next) => {
+    let s3Response;
     //to validate req body
     const errors = validationResult(req);
     if (!errors.isEmpty())
@@ -105,12 +107,23 @@ export const createPlace = async (req, res, next) => {
     //express.json() to use req.body
     const { title, description, address, } = req.body;
     // console.log('title,description,coordinates,address,creator',title,description,coordinates,address,creator,req.body)
+    console.log('req.file',req.file)
+    try{
+        s3Response=await uploadFile(req.file);
+
+    }
+    catch(e){
+    console.log('place s3',s3Response)
+
+        return next(new HttpError("Image Upload Failed",500))
+    }
+
     const createdPlace = new PlaceModel({
         title,
         description,
         location: coordinates,
         address,
-        image: req.file.path,
+        image: s3Response?.Location,
         creator:req.userData.userId,
     })
     let user;
